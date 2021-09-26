@@ -28,18 +28,29 @@ export function generatePostalCodeMap(
     const results: LocationResult[] = [];
 
     // 埼玉県上尾市上尾下
-    const postalCodeName = `${postalCodeRow.prefecture}${postalCodeRow.city}${postalCodeRow.town}`;
+    const regexp = new RegExp(
+      `^${postalCodeRow.prefecture}${postalCodeRow.city}(?:大字)?(${postalCodeRow.town}(?:[一二三四五六七八九〇]+丁目)?)$`
+    );
 
     for (const locationInfoRow of locationInfoRows) {
+      if (locationInfoRow.city !== targetCity) {
+        continue;
+      }
+
       const locationInfoName = `${locationInfoRow.prefecture}${locationInfoRow.city}${locationInfoRow.town}`;
-      if (locationInfoName.startsWith(postalCodeName)) {
+      const match = locationInfoName.match(regexp);
+      if (match) {
         results.push({
           prefecture: locationInfoRow.prefecture,
           city: locationInfoRow.city,
-          town: locationInfoRow.town,
+          town: match[1],
         });
       }
     }
+
+    results.sort((a, b) =>
+      kansuujiToNum(a.town).localeCompare(kansuujiToNum(b.town), "ja")
+    );
 
     map[postalCodeRow.postalCode] =
       results.length === 0
@@ -59,4 +70,22 @@ export function generatePostalCodeMap(
   }
 
   return map;
+}
+
+function kansuujiToNum(v: string) {
+  const map: Record<string, string> = {
+    一: "1",
+    二: "2",
+    三: "3",
+    四: "4",
+    五: "5",
+    六: "6",
+    七: "7",
+    八: "8",
+    九: "9",
+    〇: "0",
+  };
+  return v.replace(/[一二三四五六七八九〇]/g, (c) => {
+    return map[c];
+  });
 }

@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node -r esbuild-register src/index.ts",
     "lint": "eslint '**/*.ts' --fix",
-    "prettier": "prettier '**/*.json' '**/*.js' '**/*.ts' --ignore-path .gitignore --write",
+    "prettier": "prettier '**/*.json' '**/*.ts' --ignore-path .gitignore --write",
     "fmt": "run-s lint prettier"
   },
   "devDependencies": {
